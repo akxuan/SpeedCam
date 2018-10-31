@@ -1,0 +1,13 @@
+select location_id,round (avg(speed) ,2)
+from (
+select 
+location_id,
+speed,
+ row_number() over(partition by location_id order by speed desc nulls last) as r_num,  
+               count(*) over(partition by location_id) as n_rows  
+
+  from (select * from public.speed_enforcement_status where timestamp > '2018-9-1' and timestamp < '2018-9-30' ) aaa
+) abc
+ where r_num <= round(n_rows * 85 / 100)  
+group by location_id
+
